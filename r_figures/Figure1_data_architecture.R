@@ -1,7 +1,6 @@
 # Figure 1. Data and evidence architecture of the Legionella host-dependency atlas
 # Source data: 11_figures/source_data/Figure1*.tsv
 ROOT <- Sys.getenv("LEGIONELLA_ROOT")
-if (!nzchar(ROOT)) ROOT <- Sys.getenv("LEGIONELLA_ROOT")
 if (!nzchar(ROOT)) stop("Set LEGIONELLA_ROOT before running this script.")
 if (!dir.exists(ROOT)) stop("LEGIONELLA_ROOT does not exist: ", ROOT)
 setwd(file.path(ROOT, "15_manuscript/r_figures"))
@@ -58,5 +57,5 @@ pD <- ggplot(D, aes(x = stage, y = n)) +
   labs(x = NULL, y = "Genes / candidates", title = "D. Selective evidence convergence") +
   theme_pub() + theme(axis.text.x = element_text(size = 9, angle = 25, hjust = 1))
 
-fig <- (pA | pB) / (pC | pD)
+fig <- (pA + pB + pC + pD + plot_layout(ncol = 2)) & panel_labels_topleft()
 save_pub_pdf(fig, "Figure1_data_architecture", w = 10, h = 8.5)

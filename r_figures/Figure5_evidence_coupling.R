@@ -1,7 +1,6 @@
 # Figure 5. Evidence modalities are non-equivalent; post-freeze audits retain
 # transparent uncertainty and show where association is estimator-sensitive.
 ROOT <- Sys.getenv("LEGIONELLA_ROOT")
-if (!nzchar(ROOT)) ROOT <- Sys.getenv("LEGIONELLA_ROOT")
 if (!nzchar(ROOT)) stop("Set LEGIONELLA_ROOT before running this script.")
 if (!dir.exists(ROOT)) stop("LEGIONELLA_ROOT does not exist: ", ROOT)
 setwd(file.path(ROOT, "15_manuscript/r_figures"))
@@ -104,5 +103,5 @@ pD <- ggplot(overlap, aes(x = estimate, y = method)) +
   theme_pub(base_size = 11) +
   theme(axis.text.y = element_text(size = 9), axis.ticks.y = element_line())
 
-fig <- (pA | pB) / (pC | pD)
+fig <- (pA + pB + pC + pD + plot_layout(ncol = 2)) & panel_labels_topleft()
 save_pub_pdf(fig, "Figure5_evidence_coupling", w = 13, h = 9.5)

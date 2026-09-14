@@ -1,6 +1,5 @@
 # Supplementary Figure 1. Leave-one-source-out evidence fragility
 ROOT <- Sys.getenv("LEGIONELLA_ROOT")
-if (!nzchar(ROOT)) ROOT <- Sys.getenv("LEGIONELLA_ROOT")
 if (!nzchar(ROOT)) stop("Set LEGIONELLA_ROOT before running this script.")
 if (!dir.exists(ROOT)) stop("LEGIONELLA_ROOT does not exist: ", ROOT)
 setwd(file.path(ROOT, "15_manuscript/r_figures"))

@@ -1,6 +1,5 @@
 # Supplementary Figure 3. Species composition of evidence for leading candidates
 ROOT <- Sys.getenv("LEGIONELLA_ROOT")
-if (!nzchar(ROOT)) ROOT <- Sys.getenv("LEGIONELLA_ROOT")
 if (!nzchar(ROOT)) stop("Set LEGIONELLA_ROOT before running this script.")
 if (!dir.exists(ROOT)) stop("LEGIONELLA_ROOT does not exist: ", ROOT)
 setwd(file.path(ROOT, "15_manuscript/r_figures"))
@@ -45,5 +44,5 @@ pB <- ggplot(L_long, aes(source, gene, fill = factor(val))) +
   theme(axis.text.x = element_text(size = 9, angle = 0, hjust = 0.5, lineheight = 0.9),
         axis.text.y = element_text(size = 9))
 
-fig <- pA | pB
+fig <- (pA | pB) & panel_labels_topleft()
 save_pub_pdf(fig, "SupplementaryFigure3_species_composition", w = 9, h = 6.5)

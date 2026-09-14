@@ -1,6 +1,5 @@
 # Figure 6. A restricted Rab/ER-Golgi core remains after influence sensitivity.
 ROOT <- Sys.getenv("LEGIONELLA_ROOT")
-if (!nzchar(ROOT)) ROOT <- Sys.getenv("LEGIONELLA_ROOT")
 if (!nzchar(ROOT)) stop("Set LEGIONELLA_ROOT before running this script.")
 if (!dir.exists(ROOT)) stop("LEGIONELLA_ROOT does not exist: ", ROOT)
 setwd(file.path(ROOT, "15_manuscript/r_figures"))
@@ -81,6 +80,6 @@ pE <- ggplot(LO, aes(y=label)) +
   theme_pub(base_size=11) +
   theme(axis.text.x=element_text(size=10), axis.text.y=element_text(size=10))
 
-fig <- ((pA | pB) / (pC | pD | pE)) +
-  plot_layout(heights=c(1.15, 1))
+fig <- (((pA | pB) / (pC | pD | pE)) +
+  plot_layout(heights=c(1.15, 1))) & panel_labels_topleft()
 save_pub_pdf(fig, "Figure6_trafficking_atlas", w=13, h=9.2)

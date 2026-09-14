@@ -2,7 +2,6 @@
 # A: direct effector manipulation (literature-confirmed edges)
 # B: host trafficking program evidence matrix (final tiers)
 ROOT <- Sys.getenv("LEGIONELLA_ROOT")
-if (!nzchar(ROOT)) ROOT <- Sys.getenv("LEGIONELLA_ROOT")
 if (!nzchar(ROOT)) stop("Set LEGIONELLA_ROOT before running this script.")
 if (!dir.exists(ROOT)) stop("LEGIONELLA_ROOT does not exist: ", ROOT)
 setwd(file.path(ROOT, "15_manuscript/r_figures"))
@@ -80,5 +79,5 @@ pB <- ggplot(host_long, aes(track, gene_label, fill = factor(val))) +
     legend.position = "top"
   )
 
-fig <- (pA | pB) + plot_layout(widths = c(1.9, 1.0))
+fig <- ((pA | pB) + plot_layout(widths = c(1.9, 1.0))) & panel_labels_topleft()
 save_pub_pdf(fig, "Figure7_RAB1A_architecture", w = 12, h = 6.5)

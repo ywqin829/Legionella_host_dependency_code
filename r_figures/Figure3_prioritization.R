@@ -1,6 +1,5 @@
 # Figure 3. Multimodal prioritization and internal positive-control recovery
 ROOT <- Sys.getenv("LEGIONELLA_ROOT")
-if (!nzchar(ROOT)) ROOT <- Sys.getenv("LEGIONELLA_ROOT")
 if (!nzchar(ROOT)) stop("Set LEGIONELLA_ROOT before running this script.")
 if (!dir.exists(ROOT)) stop("LEGIONELLA_ROOT does not exist: ", ROOT)
 setwd(file.path(ROOT, "15_manuscript/r_figures"))
@@ -63,5 +62,5 @@ pB <- ggplot(positive_controls_long, aes(domain, gene, fill = factor(recovered))
   theme_pub() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-fig <- pA | pB
+fig <- (pA | pB) & panel_labels_topleft()
 save_pub_pdf(fig, "Figure3_prioritization", w = 9, h = 4.8)

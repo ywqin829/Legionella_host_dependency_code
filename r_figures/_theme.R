@@ -18,3 +18,14 @@ save_pub_pdf <- function(p, file, w = 7.2, h = 5.5) {
   ggsave(paste0(file, ".pdf"), p, width = w, height = h, device = cairo_pdf)
   message("wrote ", file, ".pdf")
 }
+# Panel labels (A, B, C, ...) at the top-left corner of each panel.
+# The panel letter is the first character of the panel title, so left-aligning
+# the title anchors it to the top-left corner of the panel instead of centring
+# it. patchwork aligns the panels themselves, so letters in one column share a
+# single x position and letters in one row share a single y position.
+# Apply to the assembled figure, e.g.
+#   fig <- (pA + pB + pC + pD + plot_layout(ncol = 2)) & panel_labels_topleft()
+#   fig <- (pA | pB) & panel_labels_topleft()
+panel_labels_topleft <- function() {
+  theme(plot.title = element_text(hjust = 0))
+}

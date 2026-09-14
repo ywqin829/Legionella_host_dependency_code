@@ -1,6 +1,5 @@
 # Figure 4. Locked cross-context transcriptional corroboration in E-MTAB-16655 (PMA-THP-1)
 ROOT <- Sys.getenv("LEGIONELLA_ROOT")
-if (!nzchar(ROOT)) ROOT <- Sys.getenv("LEGIONELLA_ROOT")
 if (!nzchar(ROOT)) stop("Set LEGIONELLA_ROOT before running this script.")
 if (!dir.exists(ROOT)) stop("LEGIONELLA_ROOT does not exist: ", ROOT)
 setwd(file.path(ROOT, "15_manuscript/r_figures"))
@@ -69,5 +68,5 @@ pD <- ggplot(D, aes(x = reorder(contrast_id, score), y = score, fill = passes_fr
   labs(x = NULL, y = "Mean absolute signed Z", title = "D. Multi-effector boundary tests") +
   theme_pub()
 
-fig <- (pA | pB) / (pC | pD)
+fig <- (pA + pB + pC + pD + plot_layout(ncol = 2)) & panel_labels_topleft()
 save_pub_pdf(fig, "Figure4_holdout_validation", w = 12, h = 9)

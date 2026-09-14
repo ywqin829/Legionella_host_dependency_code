@@ -1,6 +1,5 @@
 # Figure 2. Cross-cohort, mechanism-resolved and spatial evidence
 ROOT <- Sys.getenv("LEGIONELLA_ROOT")
-if (!nzchar(ROOT)) ROOT <- Sys.getenv("LEGIONELLA_ROOT")
 if (!nzchar(ROOT)) stop("Set LEGIONELLA_ROOT before running this script.")
 if (!dir.exists(ROOT)) stop("LEGIONELLA_ROOT does not exist: ", ROOT)
 setwd(file.path(ROOT, "15_manuscript/r_figures"))
@@ -60,5 +59,5 @@ pD <- ggplot(D_long, aes(source, human_symbol, fill = factor(detected))) +
                       axis.text.y = element_text(size = 10))
 
 # taller canvas: 2 rows x 2 cols, each panel gets real area
-fig <- (pA | pB) / (pC | pD)
+fig <- (pA + pB + pC + pD + plot_layout(ncol = 2)) & panel_labels_topleft()
 save_pub_pdf(fig, "Figure2_cross_cohort_mechanism", w = 11, h = 8.5)

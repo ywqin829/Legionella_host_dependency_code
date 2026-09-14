@@ -1,6 +1,5 @@
 # Convenience runner. Detailed plotting code remains in the individual figure scripts.
 ROOT <- Sys.getenv("LEGIONELLA_ROOT")
-if (!nzchar(ROOT)) ROOT <- Sys.getenv("LEGIONELLA_ROOT")
 if (!nzchar(ROOT)) stop("Set LEGIONELLA_ROOT before running this script.")
 if (!dir.exists(ROOT)) stop("LEGIONELLA_ROOT does not exist: ", ROOT)
 FIG_DIR <- file.path(ROOT, "15_manuscript/r_figures")
@@ -17,4 +16,4 @@ for (f in figs) {
   cat("== running", f, "==\n")
   source(file.path(FIG_DIR, paste0(f, ".R")), local = FALSE)
 }
-cat("All 12 figure scripts completed in:", FIG_DIR, "\n")
+cat("All 13 figure scripts completed in:", FIG_DIR, "\n")
