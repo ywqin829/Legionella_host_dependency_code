@@ -16,4 +16,4 @@ for (f in figs) {
   cat("== running", f, "==\n")
   source(file.path(FIG_DIR, paste0(f, ".R")), local = FALSE)
 }
-cat("All 13 figure scripts completed in:", FIG_DIR, "\n")
+cat("All", length(figs), "figure scripts completed in:", FIG_DIR, "\n")
