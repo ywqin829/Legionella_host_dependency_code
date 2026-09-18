@@ -124,7 +124,7 @@ def main() -> int:
         f"- Full fixed panel: {manifest['candidate_panel_n']} genes",
         f"- Candidate-panel SHA256: `{manifest['candidate_panel_sha256']}`",
         f"- Validation-rules SHA256: `{manifest['rules_sha256']}`", "",
-        "The processed holdout expression matrix had not been downloaded or inspected when this freeze was created. Sample metadata were used only to define the fixed contrasts. Candidate identities, expected directions, endpoint families, and multiplicity rules may not be changed after holdout unblinding.",
+        "Processed holdout expression matrices were already present locally when this freeze was created. They were not loaded by this step or by any input to candidate selection; candidate identities, expected directions, endpoint families, multiplicity rules and decision thresholds were fixed from the discovery-layer evidence atlas alone. Sample metadata were used only to define the fixed contrasts. Candidate identities, expected directions, endpoint families, and multiplicity rules may not be changed after holdout unblinding.",
     ]
     (OUT / "STAGE6D_CANDIDATE_FREEZE.md").write_text("\n".join(report), encoding="utf-8")
     print(json.dumps(manifest, indent=2))
