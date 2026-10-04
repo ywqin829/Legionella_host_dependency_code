@@ -2,17 +2,17 @@
 
 Purpose
 -------
-The frozen 54-gene holdout panel is enriched for RAB GTPases and membrane-trafficking
-genes (10 RAB / 12 trafficking observed; selection-aware null medians 1 / 4;
-f7_selection_aware_enrichment.json). A trivial alternative explanation is
+The frozen 56-gene candidate panel is enriched for RAB GTPases and membrane-trafficking
+genes (10 canonical RAB GTPases / 12 trafficking observed; selection-aware null medians
+1 / 4; f7_selection_aware_enrichment.json). A trivial alternative explanation is
 *annotation opportunity*: genes that are heavily annotated in GO are more likely to be
 recorded in both the LCV proteome layer and the CRISPR hit layer, and GO annotation
 density correlates with how "membrane-ish" a gene looks. This script asks whether the
-RAB / trafficking enrichment survives matching on that opportunity.
+RAB-GTPase / trafficking enrichment survives matching on that opportunity.
 
 Two nested nulls
 ----------------
-Null A : annotation-opportunity null. Pseudo-panels of 54 unique genes matched on
+Null A : annotation-opportunity null. Pseudo-panels of 56 unique genes matched on
          GO annotation counts (BP, CC, total distinct terms), generic membrane
          (GO:0016020 + descendants) yes/no, generic intracellular membrane-bounded
          organelle (GO:0043231 + descendants) yes/no, baseline UI expression, expression
@@ -48,7 +48,7 @@ import pandas as pd
 from sklearn.linear_model import LogisticRegression
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from trafficking_universe import RAB_GENES, ALL_GENES
+from trafficking_universe import RAB_GTPASE, ALL_GENES
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "13_postfreeze_interpretation"
@@ -159,8 +159,9 @@ print(f"  genes with GO annotation: {len(gaf_all)}")
 # ---------------- Atlas universe (identical to f7) ----------------
 atlas = pd.read_csv(ROOT / "08_evidence_atlas" / "host_dependency_evidence_atlas.tsv.gz", sep="\t", low_memory=False)
 deg = pd.read_csv(ROOT / "03_interactome" / "cross_pathogen_degree_target_excluded.tsv", sep="\t", low_memory=False)
-panel = sorted(set(pd.read_csv(ROOT / "09_holdout_validation" / "holdout_frozen_candidate_results.tsv", sep="\t")
-                   .loc[lambda d: d.contrast_id == "WT_vs_UI", "human_symbol"]))
+# Discovery/candidate null uses the truly frozen 56-gene panel.
+panel = sorted(set(pd.read_csv(ROOT / "08_evidence_atlas" / "FROZEN_CANDIDATE_PANEL_PRE_HOLDOUT.tsv", sep="\t")
+                   .loc[:, "human_symbol"].dropna().astype(str)))
 
 
 def B(s):
@@ -249,7 +250,7 @@ if int(d["_in_panel"].sum()) != len(panel):
     missing = sorted(set(panel) - set(d.loc[d["_in_panel"] == 1, "human_symbol"]))
     raise RuntimeError(f"Panel genes missing from null universe: {missing}")
 
-rab_set = set(RAB_GENES)
+rab_set = set(RAB_GTPASE)
 traf_set = set(ALL_GENES)
 obs_rab = len(set(panel) & rab_set)
 obs_traf = len(set(panel) & traf_set)
@@ -361,8 +362,8 @@ for tag in results:
     results[tag].pop("_counts_traf", None)
 
 summary = {
-    "analysis": "Annotation-opportunity / broad-membrane matched null for the 54-gene holdout panel",
-    "panel_source": "09_holdout_validation/holdout_frozen_candidate_results.tsv, contrast WT_vs_UI",
+    "analysis": "Annotation-opportunity / broad-membrane matched null for the 56-gene frozen candidate panel",
+    "panel_source": "08_evidence_atlas/FROZEN_CANDIDATE_PANEL_PRE_HOLDOUT.tsv (56-gene frozen panel)",
     "annotation_source": {
         "gaf": "goa_human.gaf.gz (GOC, date-generated 2026-05-21)",
         "obo": "go-basic.obo (releases/2026-07-26)",

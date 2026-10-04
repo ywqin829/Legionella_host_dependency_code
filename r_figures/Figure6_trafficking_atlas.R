@@ -40,15 +40,19 @@ pB <- ggplot(FAM_long, aes(track, family, fill=frac)) +
   theme_pub(base_size=11) + theme(axis.text.x=element_text(angle=45, hjust=1, size=10), axis.text.y=element_text(size=10))
 
 ENm <- EN %>% filter(grepl("atlas$", label)) %>%
-  mutate(group=ifelse(grepl("RAB", label), "RAB family", "Trafficking universe"))
+  mutate(group = recode(label,
+      "RAB_GTPase_family | panel | atlas" = "RAB GTPase\n(n=61)",
+      "RAB_associated_machinery | panel | atlas" = "RAB-associated\n(n=77)",
+      "trafficking_universe | panel | atlas" = "Trafficking\n(n=275)"),
+    group = factor(group, levels=c("RAB GTPase\n(n=61)", "RAB-associated\n(n=77)", "Trafficking\n(n=275)")))
 pC <- ggplot(ENm, aes(group, fold, fill=group)) +
   geom_col(colour="black", linewidth=0.3, width=0.6) +
   geom_text(aes(label=paste0(round(fold,1), "x")), vjust=-0.5, size=3.3) +
-  scale_fill_manual(values=c("RAB family"="#C1121F", "Trafficking universe"="#2E86AB"), guide="none") +
-  labs(x=NULL, y="Fold enrichment in 54-gene panel", title="C. Panel enrichment",
+  scale_fill_manual(values=c("RAB GTPase\n(n=61)"="#C1121F", "RAB-associated\n(n=77)"="#E07A5F", "Trafficking\n(n=275)"="#2E86AB"), guide="none") +
+  labs(x=NULL, y="Fold enrichment in 56-gene panel", title="C. Panel enrichment",
        subtitle="selection-aware null:\nadjusted P ~ 2e-4") +
   scale_y_continuous(expand=expansion(mult=c(0, 0.16))) +
-  theme_pub(base_size=11) + theme(axis.text.x=element_text(size=10), axis.text.y=element_text(size=10))
+  theme_pub(base_size=11) + theme(axis.text.x=element_text(size=9), axis.text.y=element_text(size=10))
 
 CT <- CT %>% mutate(passed=factor(passed, levels=c(TRUE,FALSE), labels=c("Passing","Non-passing")))
 pD <- ggplot(CT) +

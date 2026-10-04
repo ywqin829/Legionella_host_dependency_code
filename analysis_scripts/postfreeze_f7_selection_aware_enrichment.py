@@ -9,7 +9,7 @@ import pandas as pd
 from sklearn.linear_model import LogisticRegression
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from trafficking_universe import RAB_GENES, ALL_GENES
+from trafficking_universe import RAB_GTPASE, ALL_GENES
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "13_postfreeze_interpretation"
@@ -17,8 +17,9 @@ RNG = np.random.default_rng(42)
 
 atlas = pd.read_csv(ROOT / "08_evidence_atlas" / "host_dependency_evidence_atlas.tsv.gz", sep="\t", low_memory=False)
 deg = pd.read_csv(ROOT / "03_interactome" / "cross_pathogen_degree_target_excluded.tsv", sep="\t", low_memory=False)
-panel = sorted(set(pd.read_csv(ROOT / "09_holdout_validation" / "holdout_frozen_candidate_results.tsv", sep="\t")
-                   .loc[lambda d: d.contrast_id == "WT_vs_UI", "human_symbol"]))
+# Discovery/candidate null uses the truly frozen 56-gene panel.
+panel = sorted(set(pd.read_csv(ROOT / "08_evidence_atlas" / "FROZEN_CANDIDATE_PANEL_PRE_HOLDOUT.tsv", sep="\t")
+                   .loc[:, "human_symbol"].dropna().astype(str)))
 
 def B(s): return s.astype(str).str.upper().isin(["TRUE", "1", "YES"])
 atlas["_ppi"] = B(atlas["ppi_AB_flag"]); atlas["_apms"] = B(atlas["apms_high_confidence"])
@@ -91,7 +92,7 @@ for i, p in pools.items():
     if len(p) < 20: pools[i] = np.array([j for j in ctl_idx if abs(prop[j] - prop[i]) <= 0.05])
     if len(p) < 20: pools[i] = ctl_idx
 
-rab_set = set(RAB_GENES); traf_set = set(ALL_GENES)
+rab_set = set(RAB_GTPASE); traf_set = set(ALL_GENES)
 N = 10000
 counts_rab = np.empty(N); counts_traf = np.empty(N)
 for k in range(N):
@@ -126,7 +127,7 @@ out = {"n_pseudo_panels": N, "n_panel": len(panel), "universe_n": len(d),
        "bonferroni_adjusted_p_rab": min(1.0, 2 * p_rab),
        "bonferroni_adjusted_p_trafficking": min(1.0, 2 * p_traf),
        "matching_vars": FEAT,
-       "interpretation": "Selection-aware null samples unique-gene 54-gene pseudo-panels matched on measured candidate-ascertainment features. Significant results indicate that the observed enrichment is not explained by the measured matching features; unmeasured ascertainment remains possible."}
+       "interpretation": "Selection-aware null samples unique-gene 56-gene pseudo-panels matched on measured candidate-ascertainment features. The RAB test uses the canonical 61-gene RAB GTPase family. Significant results indicate that the observed enrichment is not explained by the measured matching features; unmeasured ascertainment remains possible."}
 (OUT / "f7_selection_aware_enrichment.json").write_text(json.dumps(out, indent=2, ensure_ascii=False), encoding="utf-8")
 np.save(OUT / "f7_selection_null_rab_counts.npy", counts_rab)
 np.save(OUT / "f7_selection_null_traf_counts.npy", counts_traf)

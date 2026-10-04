@@ -51,4 +51,17 @@ for fam, genes in TRAFFICKING.items():
         GENE_TO_FAMILY.setdefault(g, fam)
 
 ALL_GENES = sorted(GENE_TO_FAMILY)
-RAB_GENES = sorted(TRAFFICKING["RAB"] + TRAFFICKING["RAB_effector_GEF"] + TRAFFICKING["RAB_GAP"])
+
+# Canonical RAB GTPase family: the 61 RAB GTPases themselves (HGNC "RAB*" family).
+RAB_GTPASE = sorted(TRAFFICKING["RAB"])
+
+# RAB-associated machinery: the 61 RAB GTPases together with RAB guanine-nucleotide
+# exchange/effector factors and RAB GTPase-activating proteins (77 total). These are
+# functionally linked to RAB signalling but are not themselves RAB GTPases, so they are
+# reported separately from the canonical family.
+RAB_ASSOCIATED = sorted(TRAFFICKING["RAB"] + TRAFFICKING["RAB_effector_GEF"] + TRAFFICKING["RAB_GAP"])
+
+# Backwards-compatible alias: older scripts used RAB_GENES for the 77-gene
+# RAB-associated machinery. New code should pick RAB_GTPASE (61) or RAB_ASSOCIATED (77)
+# explicitly.
+RAB_GENES = RAB_ASSOCIATED

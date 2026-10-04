@@ -1,5 +1,4 @@
-ROOT <- Sys.getenv("LEGIONELLA_ROOT"); if(!nzchar(ROOT)) ROOT <- Sys.getenv("LEGIONELLA_ROOT")
-if (!nzchar(ROOT)) stop("Set LEGIONELLA_ROOT before running this script.")
+ROOT <- Sys.getenv("LEGIONELLA_ROOT"); if(!nzchar(ROOT)) stop("Set LEGIONELLA_ROOT before running this script.")
 library(readr); library(dplyr); library(logistf)
 a <- read_tsv(file.path(ROOT,"08_evidence_atlas","host_dependency_evidence_atlas.tsv.gz"),show_col_types=FALSE)
 tr <- function(x) as.integer(toupper(as.character(x)) %in% c("TRUE","1","YES")); gc <- function(n) if(n %in% names(a)) suppressWarnings(as.numeric(a[[n]])) else rep(0,nrow(a))

@@ -9,7 +9,7 @@ from scipy import stats
 
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from trafficking_universe import GENE_TO_FAMILY, RAB_GENES
+from trafficking_universe import GENE_TO_FAMILY, RAB_GTPASE, RAB_ASSOCIATED
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "13_postfreeze_interpretation"
@@ -17,17 +17,23 @@ OUT.mkdir(parents=True, exist_ok=True)
 
 atlas = pd.read_csv(ROOT / "08_evidence_atlas" / "host_dependency_evidence_atlas.tsv.gz", sep="\t", low_memory=False)
 hold = pd.read_csv(ROOT / "09_holdout_validation" / "holdout_frozen_candidate_results.tsv", sep="\t")
+frozen = pd.read_csv(ROOT / "08_evidence_atlas" / "FROZEN_CANDIDATE_PANEL_PRE_HOLDOUT.tsv", sep="\t")
 
-# measured frozen panel (54)
-panel = sorted(set(hold.loc[hold.contrast_id == "WT_vs_UI", "human_symbol"]))
+# Discovery/candidate enrichment uses the truly frozen 56-gene panel.
+panel = sorted(set(frozen.human_symbol.dropna().astype(str)))
+# Holdout-valued per-contrast response is restricted to the 54 holdout-evaluable genes
+# (AKAP2 and HSPA2 are not measured in the holdout).
+panel_holdout = sorted(set(hold.loc[hold.contrast_id == "WT_vs_UI", "human_symbol"]))
 background = sorted(atlas.human_symbol.dropna().unique())
 
 panel_set = set(panel)
 bg_set = set(background)
-rab_set = set(RAB_GENES)
+rab_gtpase_set = set(RAB_GTPASE)
+rab_assoc_set = set(RAB_ASSOCIATED)
 traf_set = set(GENE_TO_FAMILY)
 
-rab_in_panel = panel_set & rab_set
+rab_in_panel = panel_set & rab_gtpase_set
+rabassoc_in_panel = panel_set & rab_assoc_set
 traf_in_panel = panel_set & traf_set
 
 
@@ -55,7 +61,8 @@ crispr_tested = set(atlas.loc[atlas.functional_tier.astype(str).isin(
 
 res = []
 for bg_name, bg in [("atlas", set(background)), ("crispr_tested", crispr_tested)]:
-    res.append(fisher_enrichment(rab_set, panel_set, bg, f"RAB_family | panel | {bg_name}"))
+    res.append(fisher_enrichment(rab_gtpase_set, panel_set, bg, f"RAB_GTPase_family | panel | {bg_name}"))
+    res.append(fisher_enrichment(rab_assoc_set, panel_set, bg, f"RAB_associated_machinery | panel | {bg_name}"))
     res.append(fisher_enrichment(traf_set, panel_set, bg, f"trafficking_universe | panel | {bg_name}"))
 # also: are panel trafficking genes higher in clean-CRISPR?
 panel_traf = sorted(panel_set & traf_set)
@@ -63,14 +70,19 @@ panel_non_traf = sorted(panel_set - traf_set)
 print(f"panel size: {len(panel)}; trafficking in panel: {len(panel_traf)} ({panel_traf})")
 
 # ---- per-contrast: trafficking subset response vs rest ----
+# This is a holdout-response analysis, so it is restricted to the 54 holdout-evaluable
+# genes (the 56-gene frozen panel minus AKAP2 and HSPA2, which are not measured).
 hold["signed_z"] = np.sign(hold["logFC"]) * stats.norm.ppf(np.clip(hold["PValue"] / 2, 1e-300, 0.5 - 1e-300))
 multi = ["A_vs_WT", "B_vs_WT", "C_vs_WT", "D_vs_WT", "E_vs_WT", "F_vs_WT",
          "FGHI_vs_WT", "I_vs_WT", "O_vs_WT", "P_vs_WT", "R_vs_WT", "S_vs_WT"]
 passing = {"A_vs_WT", "B_vs_WT", "C_vs_WT", "D_vs_WT", "FGHI_vs_WT", "S_vs_WT"}
 
+panel_traf = sorted(set(panel_holdout) & traf_set)
+panel_non_traf = sorted(set(panel_holdout) - traf_set)
+
 contrast_rows = []
 for c in multi:
-    d = hold[hold.contrast_id == c].set_index("human_symbol").reindex(panel)
+    d = hold[hold.contrast_id == c].set_index("human_symbol").reindex(panel_holdout)
     traf_z = d.loc[panel_traf, "signed_z"].dropna()
     nont_z = d.loc[panel_non_traf, "signed_z"].dropna()
     if len(traf_z) >= 3 and len(nont_z) >= 3:
@@ -107,7 +119,11 @@ res_df.to_csv(OUT / "a4_panel_enrichment.tsv", sep="\t", index=False)
 # combined stats json
 stats_out = {
     "panel_n": len(panel),
-    "rab_in_panel": len(rab_in_panel), "trafficking_in_panel": len(traf_in_panel),
+    "panel_source": "08_evidence_atlas/FROZEN_CANDIDATE_PANEL_PRE_HOLDOUT.tsv (56-gene frozen panel)",
+    "panel_holdout_evaluable_n": len(panel_holdout),
+    "rab_gtpase_in_panel": len(rab_in_panel),
+    "rab_associated_in_panel": len(rabassoc_in_panel),
+    "trafficking_in_panel": len(traf_in_panel),
     "enrichment": res, "contrast_summary": agg,
 }
 (OUT / "a4_stats.json").write_text(json.dumps(stats_out, indent=2), encoding="utf-8")
